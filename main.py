@@ -14,8 +14,8 @@ class Main:
         self.table_info()
         self.root.mainloop()
 
+    # Создание таблицы в базе данных
     def create_db(self):
-
         with self.conn.cursor() as cur:
             cur.execute("""CREATE TABLE IF NOT EXISTS phonebook(
                         id SERIAL PRIMARY KEY,
@@ -25,8 +25,8 @@ class Main:
                         phone VARCHAR(50));""")
             self.conn.commit()
 
+    # Заполнение таблицы tree
     def table_info(self):
-
         self.tree.delete(*self.tree.get_children())
         with self.conn.cursor() as cur:
             cur.execute("SELECT id, name, surname, email, phone FROM phonebook")
@@ -35,6 +35,7 @@ class Main:
                 for row in rows:
                     self.tree.insert("", "end", values=row)
 
+    # Информация по выбраной строке
     def label_text_info(self, event):
         try:
             self.label_text.delete(0, tk.END)
@@ -52,6 +53,7 @@ class Main:
         except IndexError:
             pass
 
+    # Интерфейс
     def inter(self):
         self.entry_name = tk.Entry(self.root)
         self.entry_name.grid(row=1, column=0, padx=5, pady=5)
@@ -101,6 +103,7 @@ class Main:
         self.label_text = tk.Listbox(self.root, width=40)
         self.label_text.grid(row=4, column=5, columnspan=2)
 
+    # Редактирование информации в записи
     def change_client(self):
         info = self.tree.item(self.tree.focus())["values"]
         phone = self.entry_phone.get("1.0", "end").strip().split("\n")
@@ -113,6 +116,7 @@ class Main:
             self.conn.commit()
         self.table_info()
 
+    # Поиск нужной записи
     def find_client(self):
         if (self.entry_name.get() == "" and self.entry_surname.get() == "" and
                 self.entry_email.get() == "" and self.entry_phone.get("1.0", "end").strip() == ""):
@@ -131,6 +135,7 @@ class Main:
                 for row in rows:
                     self.tree.insert("", "end", values=row)
 
+    # Добавление новой записи
     def add_client(self):
         if self.entry_name.get() != "" and self.entry_surname.get() != "":
             phone = self.entry_phone.get("1.0", "end").strip().split("\n")
@@ -151,6 +156,7 @@ class Main:
             msg.grid(row=2, column=0, columnspan=4)
             msg.after(2000, msg.destroy)
 
+    # Удаление записи
     def delete_client(self):
         selected_items = self.tree.selection()
         for item in selected_items:
@@ -163,6 +169,7 @@ class Main:
                 self.conn.commit()
         self.table_info()
 
+    # Добавление номера
     def add_phone(self):
         selected_items = self.tree.selection()
         for item in selected_items:
@@ -180,6 +187,7 @@ class Main:
                         self.conn.commit()
         self.table_info()
 
+    # Удаление выбранного номера
     def delete_phone(self):
         selected_items = self.tree.selection()
         data = self.tree.item(selected_items[0], "values")
