@@ -124,11 +124,32 @@ class Main:
             return
         self.tree.delete(*self.tree.get_children())
         with self.conn.cursor() as cur:
-            cur.execute(
-                "SELECT id, name, surname, email, phone FROM phonebook WHERE LOWER(name) = %s OR "
-                "LOWER(surname) = %s OR LOWER(email) = %s OR phone = %s",
-                (self.entry_name.get().lower(), self.entry_surname.get().lower(), self.entry_email.get().lower(),
-                 self.entry_phone.get("1.0", "end").strip()))
+            query = "SELECT id, name, surname, email, phone FROM phonebook WHERE"
+            params = []
+
+            if self.entry_name.get():
+                query += " LOWER(name) = %s"
+                params.append(self.entry_name.get().lower())
+
+            if self.entry_surname.get():
+                if params:
+                    query += " AND"
+                query += " LOWER(surname) = %s"
+                params.append(self.entry_surname.get().lower())
+
+            if self.entry_email.get():
+                if params:
+                    query += " AND"
+                query += " LOWER(email) = %s"
+                params.append(self.entry_email.get().lower())
+
+            if self.entry_phone.get("1.0", "end").strip():
+                if params:
+                    query += " AND"
+                query += " phone = %s"
+                params.append(self.entry_phone.get("1.0", "end").strip())
+
+            cur.execute(query, params)
             rows = cur.fetchall()
 
             if rows:
